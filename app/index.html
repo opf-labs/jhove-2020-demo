@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <link type="text/css" rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <div id="header">
+      <img src="img/opf-site-logo.png" />
+    </div>
+    <form id="app-form">
+      <div id="app-selector">
+        <select>
+          <option selected disabled>Application</option>
+          <option value="sydney">JHOVE</option>
+          <option value="melbourne">File</option>
+          <option value="cromwell">FIDO</option>
+          <option value="queenstown">Jpylyzer</option>
+        </select>
+        <select>
+          <option selected disabled>Profile</option>
+        </select>
+      </div>
+      <div id="drop-target">
+        <div>
+          <p>Drop file anywhere to upload</p>
+          <p>or</p>
+        </div>
+        <div>
+          <button id="select-file">Select a file</button>
+        </div>
+      </div>
+      <div id="app-execute">
+        <button id="process">Process</button>
+        <button id="autorun">Autorun</button>
+      </div>
+      <div id="app-close">
+        <button id="close">Close</button>
+        <button id="close-all">Close all</button>
+      </div>
+    </form>
+    <script type="text/javascript" src="js/app.js"></script>
+  </body>
+</html>

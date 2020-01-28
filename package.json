@@ -1,0 +1,37 @@
+{
+  "name": "JHOVE2020-demo",
+  "productName": "JHOVE 2020 Demonstrator",
+  "version": "0.1.0",
+  "description": "JHOVE 2020 proof of concept demonstrator.",
+  "author": "carl@openpreservation.org",
+  "copyright": "© 2020, Open Preservation Foundation",
+  "homepage" : "https://openpreservation.org/products/jhove2020",
+  "repository": "https://github.com/opf-labs/jhove2020-demo",
+  "license": "MIT",
+  "keywords": [
+    "Open Preservation Foundation",
+    "JHOVE",
+    "JHOVE2020",
+    "demo"
+  ],
+  "main": "src/main.js",
+  "build": {
+    "appId": "org.openpreservation.jhove2020",
+    "files": [
+      "app/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "publish": null
+  },
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^7.1.2",
+    "electron-builder": "^22.3.2"
+  },
+  "dependencies": {
+    "npm": "^6.13.4"
+  }
+}

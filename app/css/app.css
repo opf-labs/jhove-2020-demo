@@ -1,0 +1,12 @@
+#header img {
+  height: 80px
+}
+
+#app-form div {
+  text-align: center;
+}
+
+#drop-target {
+  margin: 50px 150px;
+  border: 1px solid;
+}
