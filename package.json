@@ -5,7 +5,7 @@
   "description": "JHOVE 2020 proof of concept demonstrator.",
   "author": "carl@openpreservation.org",
   "copyright": "© 2020, Open Preservation Foundation",
-  "homepage" : "https://openpreservation.org/products/jhove2020",
+  "homepage": "https://openpreservation.org/products/jhove2020",
   "repository": "https://github.com/opf-labs/jhove2020-demo",
   "license": "MIT",
   "keywords": [

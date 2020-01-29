@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-4i/UgFRq5GV5/zCG+l3zFewouX2lYeboafDGhFLhxvs=' 'sha256-yezKVEVDLNJhV65HciX04u5uESWF2oWbGzOZ94eKclQ=' 'sha256-Qm4SX4zYoPe53PKgPVTjNS4N3Ik58BRvs0JeFPF5+vs=' 'sha256-ElK29RD3NLaU5hBAN/K5uzZjOlErtdlryb+CNRZVIPU='">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <link type="text/css" rel="stylesheet" href="css/app.css" />
+    <link type="text/css" rel="stylesheet" href="css/console.css" />
+  </head>
+  <body>
+    <div id="header">
+      <img src="img/opf-site-logo.png" />
+    </div>
+    <div class="console" id="console">
+    </div>
+    <div class="close">
+      <div id="win-close">
+        <button id="close">Close</button>
+      </div>
+    </div>
+    <!-- Insert this line above script imports  -->
+    <script integrity="sha256-4i/UgFRq5GV5/zCG+l3zFewouX2lYeboafDGhFLhxvs=">if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <!-- normal script imports etc  -->
+    <!-- script type="text/javascript" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" src="js/jquery-3.4.1.slim.min.js"></script -->
+    <script integrity="sha256-yezKVEVDLNJhV65HciX04u5uESWF2oWbGzOZ94eKclQ=">window.$ = window.jQuery = require('./js/jquery-3.4.1.slim.min.js')</script>
+    <!-- Insert this line after script imports -->
+    <script integrity="sha256-ElK29RD3NLaU5hBAN/K5uzZjOlErtdlryb+CNRZVIPU=">if (window.module) module = window.module;</script>
+    <script integrity="sha256-Qm4SX4zYoPe53PKgPVTjNS4N3Ik58BRvs0JeFPF5+vs=" type="text/javascript">
+      const { remote } = require('electron')
+      const { ipcRenderer } = require('electron')
+
+      // Add listener for closing window
+      document.getElementById('close').addEventListener('click', (event) => {
+        remote.getCurrentWindow().close()
+      })
+
+      // Handler for process standard output
+      ipcRenderer.on('process-out', (event, output) => {
+        $('#console').append(`<p class="stdout">${output}</p>`)
+      })
+
+      // Handler for process standard error
+      ipcRenderer.on('process-err', (event, error) => {
+        $('#console').append(`<p class="stderr">${error}</p>`)
+      })
+
+      // Handler for process return code
+      ipcRenderer.on('process-exit', (event, code) => {
+        var cons =  $('#console').append(`<p class="stdout">Process exited with code: ${code}</p>`)
+      })
+    </script>
+  </body>
+</html>

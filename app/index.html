@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vFQWEKEL8P57u9DVTpi3HtU8k5caCU0qHLzojjnhiH8='">
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <link type="text/css" rel="stylesheet" href="css/app.css" />
   </head>
@@ -12,13 +12,13 @@
       <img src="img/opf-site-logo.png" />
     </div>
     <form id="app-form">
-      <div id="app-selector">
+      <div class="app-selector">
         <select>
           <option selected disabled>Application</option>
-          <option value="sydney">JHOVE</option>
-          <option value="melbourne">File</option>
-          <option value="cromwell">FIDO</option>
-          <option value="queenstown">Jpylyzer</option>
+          <option value="jhove">JHOVE</option>
+          <option value="file">File</option>
+          <option value="fido">FIDO</option>
+          <option value="jpylyzer">Jpylyzer</option>
         </select>
         <select>
           <option selected disabled>Profile</option>
@@ -26,22 +26,71 @@
       </div>
       <div id="drop-target">
         <div>
-          <p>Drop file anywhere to upload</p>
+          <p>Drop files anywhere to queue</p>
           <p>or</p>
         </div>
-        <div>
-          <button id="select-file">Select a file</button>
+        <div class="file-select">
+          <button id="select-file">Queue files</button>
         </div>
       </div>
-      <div id="app-execute">
+      <div class="execute">
         <button id="process">Process</button>
         <button id="autorun">Autorun</button>
       </div>
-      <div id="app-close">
-        <button id="close">Close</button>
-        <button id="close-all">Close all</button>
+      <div class="close">
+        <div id="app-close-all">
+          <button id="close-all">Close all</button>
+        </div>
+        <div id="app-quit">
+          <button id="quit">Quit</button>
+        </div>
       </div>
     </form>
-    <script type="text/javascript" src="js/app.js"></script>
+    <script integrity="sha256-vFQWEKEL8P57u9DVTpi3HtU8k5caCU0qHLzojjnhiH8=" type="text/javascript">
+      const { ipcRenderer } = require('electron')
+      const path = require('path')
+      const model = require(path.join(__dirname, '../src/model.js'))
+
+      // Set up the select file dialog from the button
+      document.getElementById('select-file').addEventListener('click', (event) => {
+        ipcRenderer.send('select-file')
+      })
+
+      // Set up the drag and drop target
+      const dropTarget = document.getElementById('drop-target')
+      // Drop listener
+      dropTarget.addEventListener('drop', (event) => {
+        event.preventDefault()
+        event.stopPropagation()
+        var files = []
+        for (const file of event.dataTransfer.files) {
+          files.push(model.File.fromDataTransferFile(file))
+        }
+        ipcRenderer.send('drop-file', files)
+      })
+      // Dragover listener
+      dropTarget.addEventListener('dragover', (event) => {
+        event.preventDefault()
+        event.stopPropagation()
+      })
+
+      // Add listener for closing all other windows
+      document.getElementById('close-all').addEventListener('click', (event) => {
+        const children = require('electron').remote.getCurrentWindow().getChildWindows()
+        for (const child of children) {
+          child.close()
+        }
+      })
+
+      // Add listener for quitting application
+      document.getElementById('quit').addEventListener('click', (event) => {
+        require('electron').remote.app.quit()
+      })
+
+      // Add listener for quitting application
+      document.getElementById('process').addEventListener('click', (event) => {
+        ipcRenderer.send('process')
+      })
+    </script>
   </body>
 </html>

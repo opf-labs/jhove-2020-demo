@@ -1,11 +1,16 @@
 // Modules to control application life and create native browser window
 const { BrowserWindow, Menu, app, shell } = require('electron')
-const ipcMain = require('electron').ipcMain
+const { ipcMain } = require('electron')
+const url = require('url')
+const path = require('path')
+const model = require(path.join(__dirname, 'model.js'))
 
 if (process.mas) app.name = 'JHOVE 2020 Technical Review'
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow = null
+const toProcess = []
+const jobWindows = []
 
 const template = [{
   label: 'View',
@@ -78,17 +83,20 @@ function createWindow () {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 700,
+    height: 450,
     title: app.name,
     webPreferences: {
       nodeIntegration: true
     }
   })
-
   // and load the index.html of the app.
-  mainWindow.loadFile('app/index.html')
-  mainWindow.webContents.openDevTools()
+  mainWindow.loadURL(url.format({
+    pathname: path.join(__dirname, '..', 'app/index.html'),
+    protocol: 'file:',
+    slashes: true
+  }))
+  // mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -99,22 +107,27 @@ function createWindow () {
   })
 }
 
-// function spawnList () {
-//   const { spawn } = require('child_process')
-//   const ls = spawn('ls', ['--help'])
-//
-//   ls.stdout.on('data', (data) => {
-//     console.log(`stdout: ${data}`)
-//   })
-//
-//   ls.stderr.on('data', (data) => {
-//     console.error(`stderr: ${data}`)
-//   })
-//
-//   ls.on('close', (code) => {
-//     console.log(`child process exited with code ${code}`)
-//   })
-// }
+// Execute the file utility
+function executeFile (consoleWin, path) {
+  const { spawn } = require('child_process')
+  // File requesting a MIME identifier
+  const file = spawn('file', ['-i', path])
+
+  // Handle standard out, raise a message
+  file.stdout.on('data', (data) => {
+    consoleWin.webContents.send('process-out', data)
+  })
+
+  // Raise another message for standard error
+  file.stderr.on('data', (data) => {
+    consoleWin.webContents.send('process-err', data)
+  })
+
+  // Finally a message for the return status
+  file.on('close', (code) => {
+    consoleWin.webContents.send('process-exit', code)
+  })
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -136,3 +149,74 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// Handler for the select-file event from the main page button
+ipcMain.on('select-file', (event, path) => {
+  const os = require('os')
+  const { dialog } = require('electron')
+  // Options for the file selector
+  const fileSelectOpts = {
+    title: 'Queue files for processing',
+    defaultPath: os.homedir(),
+    buttonLabel: 'Queue',
+    properties: ['openFile', 'multiSelections']
+  }
+  // Pop open the file selection dialog with result handler
+  dialog.showOpenDialog(mainWindow, fileSelectOpts).then((result) => {
+    // If the dialog was cancelled then we can get out of dodge
+    if (!result.cancelled) {
+      // Not cancelled, cycle through the file path string results
+      for (const filePath of result.filePaths) {
+        // Create a mode.File instance and push onto the processing queue
+        const file = model.File.fromPath(filePath)
+        toProcess.push(file)
+      }
+    }
+  }).catch(err => {
+    console.log(err)
+  })
+})
+
+// Handler for drop-file event, this is a secondary handler and gets a list
+// of model.File instances
+ipcMain.on('drop-file', (event, files) => {
+  // Simply iterate the files and push them onto the queue (could probably be a splice)
+  for (const file of files) {
+    toProcess.push(file)
+  }
+})
+
+// Handler for the process event, take the setup and apply it to the files in the
+// processing queue
+ipcMain.on('process', (event) => {
+  // Iterated the the queue of model.File instances
+  for (const file of toProcess) {
+    // Each result get's it's own window for now
+    const child = new BrowserWindow({
+      parent: mainWindow,
+      modal: false,
+      show: false,
+      title: file.name,
+      webPreferences: {
+        nodeIntegration: true
+      }
+    })
+    // No menu for the children yet
+    child.setMenu(null)
+    child.loadURL(url.format({
+      pathname: path.join(__dirname, '..', 'app/console.html'),
+      protocol: 'file:',
+      slashes: true
+    }))
+    // child.webContents.openDevTools()
+    child.once('ready-to-show', () => {
+      child.show()
+      // Push the child onto the job stack
+      jobWindows.push(child)
+      // Run the file utility for now
+      executeFile(child, file.path)
+    })
+  }
+  // Clear the processing queue
+  toProcess.length = 0
+})

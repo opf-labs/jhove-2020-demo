@@ -1,3 +1,7 @@
+body {
+  font-family: Verdana, sans-serif;
+}
+
 #header img {
   height: 80px
 }
@@ -6,7 +10,30 @@
   text-align: center;
 }
 
+div.close {
+  float: right;
+}
+
 #drop-target {
-  margin: 50px 150px;
+  margin: 20px 150px;
+  padding: 20px;
   border: 1px solid;
+}
+
+button, select {
+  font-family: Verdana, sans-serif;
+  border-radius: 15px;
+  width: 150px;
+  background-color: #147EA6;
+  color: white;
+  padding: 5px;
+  font-weight: bold;
+}
+
+.close select, .close button {
+  background-color: #C82F7A;
+}
+
+.execute select, .execute button {
+  background-color: #0B8764;
 }
