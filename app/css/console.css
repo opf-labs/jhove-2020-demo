@@ -5,13 +5,13 @@
   font-family: monospace;
   overflow-x: hidden;
   overflow-y: scroll;
-  background-color: white;
+  background-color: black;
   height: 400px;
 }
 
 /* stdout in OPF blue */
 .stdout {
-  color: #147EA6;
+  color: white;
 }
 
 /* stderr in OPF Pink */

@@ -26,7 +26,44 @@ class File {
     return fileObj
   }
 }
-// Export the File class
+class Tool {
+  constructor (name, command, profiles) {
+    this.name = name
+    this.command = command
+    this.profiles = profiles
+  }
+
+  execute (profileName, path, consoleWin) {
+    const { spawn } = require('child_process')
+    // Get the profile arg array and tag on the path
+    const profArgs = this.profiles[profileName]
+    const jobArgs = profArgs.concat([path])
+    const proc = spawn(this.command, jobArgs)
+
+    // Handle standard out, raise a message
+    proc.stdout.on('data', (data) => {
+      consoleWin.webContents.send('process-out', data)
+    })
+
+    // Raise another message for standard error
+    proc.stderr.on('data', (data) => {
+      consoleWin.webContents.send('process-err', data)
+    })
+
+    // Finally a message for the return status
+    proc.on('close', (code) => {
+      consoleWin.webContents.send('process-exit', code)
+    })
+  }
+}
+var tools = {
+  file: new Tool('File', 'file', { MIME: ['-i'], version: ['--version'] }),
+  FIDO: new Tool('FIDO', 'fido', { PUID: [], version: ['-v'] }),
+  Jpylyzer: new Tool('Jpylyzer', 'jpylyzer', { RUN: [], version: ['--version'] }),
+  JHOVE: new Tool('JHOVE', 'jhove', { version: ['--version'] })
+}
 module.exports = {
-  File: File
+  File: File,
+  Tool: Tool,
+  Tools: tools
 }

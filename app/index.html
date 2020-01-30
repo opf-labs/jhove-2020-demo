@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vFQWEKEL8P57u9DVTpi3HtU8k5caCU0qHLzojjnhiH8='">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-3UpB3d1TzBc4vKdVe7eif9Qp8ef6oJg8jOaZMsdNbTs='">
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <link type="text/css" rel="stylesheet" href="css/app.css" />
   </head>
@@ -13,14 +13,10 @@
     </div>
     <form id="app-form">
       <div class="app-selector">
-        <select>
+        <select id="app-select">
           <option selected disabled>Application</option>
-          <option value="jhove">JHOVE</option>
-          <option value="file">File</option>
-          <option value="fido">FIDO</option>
-          <option value="jpylyzer">Jpylyzer</option>
         </select>
-        <select>
+        <select id="prof-select">
           <option selected disabled>Profile</option>
         </select>
       </div>
@@ -46,7 +42,7 @@
         </div>
       </div>
     </form>
-    <script integrity="sha256-vFQWEKEL8P57u9DVTpi3HtU8k5caCU0qHLzojjnhiH8=" type="text/javascript">
+    <script integrity="sha256-3UpB3d1TzBc4vKdVe7eif9Qp8ef6oJg8jOaZMsdNbTs=" type="text/javascript">
       const { ipcRenderer } = require('electron')
       const path = require('path')
       const model = require(path.join(__dirname, '../src/model.js'))
@@ -55,6 +51,14 @@
       document.getElementById('select-file').addEventListener('click', (event) => {
         ipcRenderer.send('select-file')
       })
+
+      var select = document.getElementById('app-select')
+      for (const [key, value] of Object.entries(model.Tools)) {
+        var opt = document.createElement("option");
+        opt.textContent = value.name;
+        opt.value = key;
+        select.appendChild(opt)
+      }
 
       // Set up the drag and drop target
       const dropTarget = document.getElementById('drop-target')
@@ -89,7 +93,8 @@
 
       // Add listener for quitting application
       document.getElementById('process').addEventListener('click', (event) => {
-        ipcRenderer.send('process')
+        var select = document.getElementById('app-select')
+        ipcRenderer.send('process', select.value)
       })
     </script>
   </body>

@@ -84,7 +84,7 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 700,
-    height: 450,
+    height: 500,
     title: app.name,
     webPreferences: {
       nodeIntegration: true
@@ -96,6 +96,8 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
+
+  // Opens web tools for debugging, uncomment if trouble with main window
   // mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
@@ -104,28 +106,6 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
-  })
-}
-
-// Execute the file utility
-function executeFile (consoleWin, path) {
-  const { spawn } = require('child_process')
-  // File requesting a MIME identifier
-  const file = spawn('file', ['-i', path])
-
-  // Handle standard out, raise a message
-  file.stdout.on('data', (data) => {
-    consoleWin.webContents.send('process-out', data)
-  })
-
-  // Raise another message for standard error
-  file.stderr.on('data', (data) => {
-    consoleWin.webContents.send('process-err', data)
-  })
-
-  // Finally a message for the return status
-  file.on('close', (code) => {
-    consoleWin.webContents.send('process-exit', code)
   })
 }
 
@@ -188,7 +168,7 @@ ipcMain.on('drop-file', (event, files) => {
 
 // Handler for the process event, take the setup and apply it to the files in the
 // processing queue
-ipcMain.on('process', (event) => {
+ipcMain.on('process', (event, profileKey) => {
   // Iterated the the queue of model.File instances
   for (const file of toProcess) {
     // Each result get's it's own window for now
@@ -208,13 +188,16 @@ ipcMain.on('process', (event) => {
       protocol: 'file:',
       slashes: true
     }))
+    // Opens web tools for debugging, uncomment if trouble with console windows
     // child.webContents.openDevTools()
     child.once('ready-to-show', () => {
       child.show()
       // Push the child onto the job stack
       jobWindows.push(child)
       // Run the file utility for now
-      executeFile(child, file.path)
+      console.log(profileKey)
+      var tool = model.Tools[profileKey]
+      tool.execute(Object.keys(tool.profiles)[0], file.path, child)
     })
   }
   // Clear the processing queue
