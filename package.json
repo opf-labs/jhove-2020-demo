@@ -3,7 +3,11 @@
   "productName": "JHOVE 2020 Demonstrator",
   "version": "0.1.0",
   "description": "JHOVE 2020 proof of concept demonstrator.",
-  "author": "carl@openpreservation.org",
+  "author": {
+    "name": "Carl Wilson",
+    "email": "carl@openpreservation.org",
+    "url": "https://github.com/carlwilson"
+  },
   "copyright": "© 2020, Open Preservation Foundation",
   "homepage": "https://openpreservation.org/products/jhove2020",
   "repository": "https://github.com/opf-labs/jhove2020-demo",
@@ -16,16 +20,38 @@
   ],
   "main": "src/main.js",
   "build": {
-    "appId": "org.openpreservation.jhove2020",
-    "files": [
-      "app/**/*",
-      "node_modules/**/*",
-      "package.json"
-    ],
-    "publish": null
+    "appId": "jhove-2020",
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    },
+    "win": {
+      "target": "NSIS",
+      "icon": "build/icon.ico"
+    }
   },
   "scripts": {
-    "start": "electron ."
+    "postinstall": "install-app-deps",
+    "start": "npm install && electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "devDependencies": {
     "electron": "^7.1.2",
