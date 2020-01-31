@@ -13,13 +13,13 @@ You'll need the following for developing Electron apps:
 
 ### Development environment
 Electron, Node and their dependencies can make for a complicated stack. To avoid
-contaminating a development environment it's best to use [Node virtual environments]
-(https://github.com/ekalinin/nodeenv). This is a Python utility that can create
-a discrete Node environment with it's own installation directories and shared
-libraries. While NodeEnv can be installed globally using Python's `pip` package
-manager it can also be installed in a Python virtual environment. This means
-running a Node virtual environment within a Python virtual environment but avoids
-unnecessary local installations.
+contaminating a development environment it's best to use
+[Node virtual environments](https://github.com/ekalinin/nodeenv). This Python
+utility creates discrete Node environments with their own installation directories
+and shared libraries. While NodeEnv can be installed globally using Python's `pip`
+package manager it can also be installed in a Python virtual environment. This
+means running a Node virtual environment within a Python virtual environment
+but avoids unnecessary local installations.
 
 You'll need:
 
